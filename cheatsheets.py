@@ -80,10 +80,13 @@ class NewCheatSheetCommand(sublime_plugin.WindowCommand):
     def on_done(self, name):
         directory = get_directory()
         filename = os.path.join(directory, name)
+        file_directory = os.path.dirname(filename)
 
         try:
+            if not os.path.exists(file_directory):
+                os.makedirs(file_directory)
             open(filename, "w").close()
-        except OSError, ex:
+        except IOError, ex:
             sublime.error_message("Unable to create cheat sheet '%s' (%s)" % (name, ex))
             return
 
