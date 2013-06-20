@@ -1,0 +1,6 @@
+{
+	/* Directory to find cheat sheets in. Defaults to the Sheets directory in the package. */
+	"directory": null,
+	/* If true: open the cheat sheet file as a preview only. */
+	"transient": false
+}
