@@ -8,24 +8,24 @@ SETTINGS = PACKAGE + ".sublime-settings"
 def get_default_directory():
     return os.path.join(sublime.packages_path(), PACKAGE, "Sheets")
 
+def get_directory():
+    settings = sublime.load_settings(SETTINGS)
+    directory = settings.get("directory", None)
+    if directory is None:
+        return get_default_directory()
+    return os.path.expanduser(directory)
+
 class OpenCheatSheetCommand(sublime_plugin.WindowCommand):
     """A command that presents a list of cheat sheets, allowing the user to
     select one to open.
     """
-
-    def get_directory(self):
-        settings = sublime.load_settings(SETTINGS)
-        directory = settings.get("directory", None)
-        if directory is None:
-            return get_default_directory()
-        return os.path.expanduser(directory)
 
     def list_sheets(self):
         """List all files in the configured cheat sheet directory. Populates
         the sheets property to be used with show_quick_panel.
         """
 
-        directory = self.get_directory()
+        directory = get_directory()
         if not os.path.exists(directory):
             sublime.error_message("The selected directory (%s) does not exist" % directory)
             return False
@@ -51,6 +51,7 @@ class OpenCheatSheetCommand(sublime_plugin.WindowCommand):
     def run(self):
         if not self.list_sheets():
             return
+
         self.window.show_quick_panel(self.sheets, self.on_done)
 
     def on_done(self, picked):
@@ -67,3 +68,23 @@ class OpenCheatSheetCommand(sublime_plugin.WindowCommand):
             flags |= sublime.TRANSIENT
 
         self.window.open_file(filename, flags)
+
+class NewCheatSheetCommand(sublime_plugin.WindowCommand):
+    """A command that allows the user to create a new cheat sheet.
+    """
+
+    def run(self):
+        view = self.window.show_input_panel("New Cheat Sheet: ", "Name", self.on_done, None, None)
+        view.run_command("select_all")
+
+    def on_done(self, name):
+        directory = get_directory()
+        filename = os.path.join(directory, name)
+
+        try:
+            open(filename, "w").close()
+        except OSError, ex:
+            sublime.error_message("Unable to create cheat sheet '%s' (%s)" % (name, ex))
+            return
+
+        self.window.open_file(filename)

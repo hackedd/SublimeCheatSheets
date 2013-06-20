@@ -2,5 +2,9 @@
     {
         "caption": "Open Cheat Sheet",
         "command": "open_cheat_sheet"
+    },
+    {
+        "caption": "Create New Cheat Sheet",
+        "command": "new_cheat_sheet"
     }
 ]
